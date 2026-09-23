@@ -8,6 +8,16 @@
       "android",
       "ios",
       "browser"
+    ],
+    "engines": [
+      {
+        "name": "cordova-android",
+        "version": ">=14.0.0"
+      },
+      {
+        "name": "cordova-ios",
+        "version": ">=7.0.0"
+      }
     ]
   },
   "repository": {
@@ -19,16 +29,6 @@
     "cordova-android",
     "cordova-ios",
     "cordova-browser"
-  ],
-  "engines": [
-    {
-      "name": "cordova-android",
-      "version": ">=14.0.0"
-    },
-    {
-      "name": "cordova-ios",
-      "version": ">=7.0.0"
-    }
   ],
   "scripts": {
     "test": "node --check www/Insomnia.js && node tests/bridge-contract.test.js"
