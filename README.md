@@ -32,7 +32,7 @@ This repository includes CI that generates a minimal Cordova fixture app, instal
 ### Latest evidence
 
 - PR #2 (`copilot/modernize-cordova-plugin`) failed due workflow issues (fixture parent directory creation and Android setup action requesting legacy `tools`).
-- This branch keeps the same matrix and fixes those workflow issues.
+- This branch keeps the same matrix, fixes those workflow issues, and selects an available iPhone simulator dynamically because runner images may not include Cordova's default simulator name.
 - Treat the matrix entries as **configured for validation**, not confirmed green, until the latest workflow run completes successfully.
 
 ## Important runtime caveat
