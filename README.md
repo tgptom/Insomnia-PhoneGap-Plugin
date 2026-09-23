@@ -15,67 +15,64 @@ window.plugins.insomnia.keepAwake(successCallback, errorCallback);
 window.plugins.insomnia.allowSleepAgain(successCallback, errorCallback);
 ```
 
-## Compatibility and validation status
+## Compatibility verification status
 
-This repository now validates plugin install + native compile in CI using a generated fixture Cordova app that installs this plugin from the local checkout and invokes both `keepAwake` and `allowSleepAgain` in app JavaScript.
+This repository includes CI that generates a minimal Cordova fixture app, installs this plugin from the local checkout, and compiles native projects.
 
-| Platform | Version | CI status type |
+### Matrix configured in CI
+
+| Platform | Version | Runner/toolchain |
 | --- | --- | --- |
-| cordova-android | 14.0.0 | Fixture app install + `cordova build android` on Ubuntu with API 35 / Build Tools 35.0.0 |
-| cordova-android | 15.0.0 | Fixture app install + `cordova build android` on Ubuntu with API 36 / Build Tools 36.0.0 |
-| cordova-ios | 7.1.1 | Fixture app install + `cordova build ios --emulator` on GitHub `macos-latest` |
-| cordova-ios | 8.0.0 | Fixture app install + `cordova build ios --emulator` on GitHub `macos-latest` |
-| JavaScript bridge | `www/Insomnia.js` | Node syntax check + bridge contract test (`keepAwake` / `allowSleepAgain`) |
+| cordova-android | 14.0.0 | `ubuntu-24.04`, Java 17, Android API 35 + Build Tools 35.0.0 |
+| cordova-android | 15.0.0 | `ubuntu-24.04`, Java 17, Android API 36 + Build Tools 36.0.0 |
+| cordova-ios | 7.1.1 | `macos-latest` (image Xcode shown in workflow logs) |
+| cordova-ios | 8.0.0 | `macos-latest` (image Xcode shown in workflow logs) |
+| JavaScript bridge | `www/Insomnia.js` | Node-based contract checks for `keepAwake` and `allowSleepAgain` |
 
-### Important runtime caveat
+### Latest evidence
 
-A successful emulator/simulator/native build proves packaging and compilation only. It does **not** prove real screen-awake behavior. Final behavioral verification must be done on physical Android and iOS devices.
+- PR #2 (`copilot/modernize-cordova-plugin`) failed due workflow issues (fixture parent directory creation and Android setup action requesting legacy `tools`).
+- This branch keeps the same matrix and fixes those workflow issues.
+- Treat the matrix entries as **configured for validation**, not confirmed green, until the latest workflow run completes successfully.
 
-## Maintained plugin metadata scope
+## Important runtime caveat
 
-- Plugin id remains stable: `cordova-plugin-insomnia`.
-- Cordova engine metadata now targets currently maintained mobile platforms:
-  - `cordova-android >= 14.0.0`
-  - `cordova-ios >= 7.0.0`
-- Obsolete `wp8` and `firefoxos` platform declarations were removed from install metadata.
-- `browser` metadata is retained.
+A successful install/build proves packaging and compilation only. It does **not** prove physical-device screen-awake behavior. Validate `keepAwake` / `allowSleepAgain` on real Android and iOS devices.
 
-## Hosted runner/toolchain notes
-
-- Android CI jobs run on `ubuntu-24.04` and explicitly install matrix-specific Android SDK platform/build-tools packages.
-- iOS CI jobs run on GitHub `macos-latest` and use the image’s default Xcode. If GitHub image/Xcode changes cause incompatibilities for a specific `cordova-ios` version, reproduce and pin toolchains locally with the commands below.
-
-## Reproducible local validation commands
+## Local reproduction commands
 
 Run from repository root:
 
 ```bash
+REPO_ROOT="$(pwd)"
 npm test
 npm install -g cordova@12
 ```
 
-### Android 14 (API 35)
+### Android 14
 
 ```bash
 TMP_DIR=/tmp/cordova-smoke-android-14
 rm -rf "$TMP_DIR"
+mkdir -p "$TMP_DIR"
 cordova create "$TMP_DIR/app" com.example.insomniafixture InsomniaFixture --no-telemetry
-node /home/runner/work/Insomnia-PhoneGap-Plugin/Insomnia-PhoneGap-Plugin/scripts/write-fixture-index.js "$TMP_DIR/app/www/js/index.js"
+node "$REPO_ROOT/scripts/write-fixture-index.js" "$TMP_DIR/app/www/js/index.js"
 cd "$TMP_DIR/app"
-cordova plugin add /home/runner/work/Insomnia-PhoneGap-Plugin/Insomnia-PhoneGap-Plugin --no-telemetry
+cordova plugin add "$REPO_ROOT" --no-telemetry
 cordova platform add android@14.0.0 --no-telemetry
 cordova build android --debug --no-telemetry
 ```
 
-### Android 15 (API 36)
+### Android 15
 
 ```bash
 TMP_DIR=/tmp/cordova-smoke-android-15
 rm -rf "$TMP_DIR"
+mkdir -p "$TMP_DIR"
 cordova create "$TMP_DIR/app" com.example.insomniafixture InsomniaFixture --no-telemetry
-node /home/runner/work/Insomnia-PhoneGap-Plugin/Insomnia-PhoneGap-Plugin/scripts/write-fixture-index.js "$TMP_DIR/app/www/js/index.js"
+node "$REPO_ROOT/scripts/write-fixture-index.js" "$TMP_DIR/app/www/js/index.js"
 cd "$TMP_DIR/app"
-cordova plugin add /home/runner/work/Insomnia-PhoneGap-Plugin/Insomnia-PhoneGap-Plugin --no-telemetry
+cordova plugin add "$REPO_ROOT" --no-telemetry
 cordova platform add android@15.0.0 --no-telemetry
 cordova build android --debug --no-telemetry
 ```
@@ -85,10 +82,11 @@ cordova build android --debug --no-telemetry
 ```bash
 TMP_DIR=/tmp/cordova-smoke-ios-7
 rm -rf "$TMP_DIR"
+mkdir -p "$TMP_DIR"
 cordova create "$TMP_DIR/app" com.example.insomniafixture InsomniaFixture --no-telemetry
-node /home/runner/work/Insomnia-PhoneGap-Plugin/Insomnia-PhoneGap-Plugin/scripts/write-fixture-index.js "$TMP_DIR/app/www/js/index.js"
+node "$REPO_ROOT/scripts/write-fixture-index.js" "$TMP_DIR/app/www/js/index.js"
 cd "$TMP_DIR/app"
-cordova plugin add /home/runner/work/Insomnia-PhoneGap-Plugin/Insomnia-PhoneGap-Plugin --no-telemetry
+cordova plugin add "$REPO_ROOT" --no-telemetry
 cordova platform add ios@7.1.1 --no-telemetry
 cordova build ios --debug --emulator --no-telemetry
 ```
@@ -98,10 +96,11 @@ cordova build ios --debug --emulator --no-telemetry
 ```bash
 TMP_DIR=/tmp/cordova-smoke-ios-8
 rm -rf "$TMP_DIR"
+mkdir -p "$TMP_DIR"
 cordova create "$TMP_DIR/app" com.example.insomniafixture InsomniaFixture --no-telemetry
-node /home/runner/work/Insomnia-PhoneGap-Plugin/Insomnia-PhoneGap-Plugin/scripts/write-fixture-index.js "$TMP_DIR/app/www/js/index.js"
+node "$REPO_ROOT/scripts/write-fixture-index.js" "$TMP_DIR/app/www/js/index.js"
 cd "$TMP_DIR/app"
-cordova plugin add /home/runner/work/Insomnia-PhoneGap-Plugin/Insomnia-PhoneGap-Plugin --no-telemetry
+cordova plugin add "$REPO_ROOT" --no-telemetry
 cordova platform add ios@8.0.0 --no-telemetry
 cordova build ios --debug --emulator --no-telemetry
 ```

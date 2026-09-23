@@ -5,8 +5,11 @@
   "cordova": {
     "id": "cordova-plugin-insomnia",
     "platforms": [
-      "android",
       "ios",
+      "wp8",
+      "windows",
+      "android",
+      "firefoxos",
       "browser"
     ]
   },
@@ -16,18 +19,17 @@
   },
   "keywords": [
     "ecosystem:cordova",
-    "cordova-android",
     "cordova-ios",
+    "cordova-wp8",
+    "cordova-windows",
+    "cordova-android",
+    "cordova-firefoxos",
     "cordova-browser"
   ],
   "engines": [
     {
-      "name": "cordova-android",
-      "version": ">=14.0.0"
-    },
-    {
-      "name": "cordova-ios",
-      "version": ">=7.0.0"
+      "name": "cordova",
+      "version": ">=3.0.0"
     }
   ],
   "scripts": {

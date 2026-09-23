@@ -13,8 +13,7 @@
   <license>MIT</license>
 
   <engines>
-    <engine name="cordova-android" version=">=14.0.0"/>
-    <engine name="cordova-ios" version=">=7.0.0"/>
+    <engine name="cordova" version=">=3.0.0"/>
   </engines>
 
   <js-module src="www/Insomnia.js" name="Insomnia">
@@ -32,6 +31,16 @@
     <source-file src="src/ios/Insomnia.m"/>
   </platform>
 
+    <platform name="wp8">
+        <config-file target="config.xml" parent="/*">
+            <feature name="Insomnia">
+                <param name="wp-package" value="Insomnia"/>
+            </feature>
+        </config-file>
+
+        <source-file src="src/wp8/Insomnia.cs" />
+    </platform>
+
   <platform name="android">
     <config-file target="res/xml/config.xml" parent="/*">
       <feature name="Insomnia">
@@ -47,4 +56,16 @@
       <merges target="window.plugins.insomnia" />
     </js-module>
   </platform>
+
+  <platform name="firefoxos">
+    <js-module src="src/firefoxos/insomnia.js" name="InsomniaProxy">
+      <runs />
+    </js-module>
+  </platform>
+  
+  <platform name="windows">
+    <js-module src="src/windows/InsomniaProxy.js" name="InsomniaProxy">
+      <runs />
+    </js-module>
+  </platform>  
 </plugin>
