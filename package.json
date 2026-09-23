@@ -5,35 +5,38 @@
   "cordova": {
     "id": "cordova-plugin-insomnia",
     "platforms": [
-      "ios",
-      "wp8",
-      "windows",
       "android",
-      "firefoxos"
+      "ios",
+      "browser"
     ]
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/EddyVerbruggen/Insomnia-PhoneGap-Plugin.git"
+    "url": "git+https://github.com/tgptom/Insomnia-PhoneGap-Plugin.git"
   },
   "keywords": [
     "ecosystem:cordova",
-    "cordova-ios",
-    "cordova-wp8",
-    "cordova-windows",
     "cordova-android",
-    "cordova-firefoxos"
+    "cordova-ios",
+    "cordova-browser"
   ],
   "engines": [
     {
-      "name": "cordova",
-      "version": ">=3.0.0"
+      "name": "cordova-android",
+      "version": ">=14.0.0"
+    },
+    {
+      "name": "cordova-ios",
+      "version": ">=7.0.0"
     }
   ],
+  "scripts": {
+    "test": "node --check www/Insomnia.js && node tests/bridge-contract.test.js"
+  },
   "author": "Eddy Verbruggen <eddyverbruggen@gmail.com> (https://github.com/EddyVerbruggen)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/EddyVerbruggen/Insomnia-PhoneGap-Plugin/issues"
+    "url": "https://github.com/tgptom/Insomnia-PhoneGap-Plugin/issues"
   },
-  "homepage": "https://github.com/EddyVerbruggen/Insomnia-PhoneGap-Plugin#readme"
+  "homepage": "https://github.com/tgptom/Insomnia-PhoneGap-Plugin#readme"
 }

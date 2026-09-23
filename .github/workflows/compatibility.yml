@@ -1,0 +1,93 @@
+name: Compatibility
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  js-bridge:
+    name: JavaScript bridge checks
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Run lightweight JS checks
+        run: npm test
+
+  android-build:
+    name: Android build (cordova-android ${{ matrix.cordova_android }})
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - cordova_android: 14.0.0
+            android_api: '35'
+            build_tools: 35.0.0
+          - cordova_android: 15.0.0
+            android_api: '36'
+            build_tools: 36.0.0
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - name: Install Android SDK packages for this matrix entry
+        run: |
+          yes | sdkmanager --licenses >/dev/null
+          sdkmanager "platform-tools" "platforms;android-${{ matrix.android_api }}" "build-tools;${{ matrix.build_tools }}"
+      - name: Run lightweight JS checks
+        run: npm test
+      - name: Install Cordova CLI
+        run: npm install -g cordova@12
+      - name: Create and build fixture app with local plugin
+        run: |
+          FIXTURE_DIR="/tmp/cordova-smoke-android-${{ matrix.cordova_android }}"
+          rm -rf "$FIXTURE_DIR"
+          cordova create "$FIXTURE_DIR/app" com.example.insomniafixture InsomniaFixture --no-telemetry
+          node "$GITHUB_WORKSPACE/scripts/write-fixture-index.js" "$FIXTURE_DIR/app/www/js/index.js"
+          cd "$FIXTURE_DIR/app"
+          cordova plugin add "$GITHUB_WORKSPACE" --no-telemetry
+          cordova platform add "android@${{ matrix.cordova_android }}" --no-telemetry
+          cordova build android --debug --no-telemetry
+
+  ios-build:
+    name: iOS build (cordova-ios ${{ matrix.cordova_ios }})
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        cordova_ios:
+          - 7.1.1
+          - 8.0.0
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Show Xcode toolchain
+        run: xcodebuild -version
+      - name: Run lightweight JS checks
+        run: npm test
+      - name: Install Cordova CLI
+        run: npm install -g cordova@12
+      - name: Create and build fixture app with local plugin
+        run: |
+          FIXTURE_DIR="/tmp/cordova-smoke-ios-${{ matrix.cordova_ios }}"
+          rm -rf "$FIXTURE_DIR"
+          cordova create "$FIXTURE_DIR/app" com.example.insomniafixture InsomniaFixture --no-telemetry
+          node "$GITHUB_WORKSPACE/scripts/write-fixture-index.js" "$FIXTURE_DIR/app/www/js/index.js"
+          cd "$FIXTURE_DIR/app"
+          cordova plugin add "$GITHUB_WORKSPACE" --no-telemetry
+          cordova platform add "ios@${{ matrix.cordova_ios }}" --no-telemetry
+          cordova build ios --debug --emulator --no-telemetry
