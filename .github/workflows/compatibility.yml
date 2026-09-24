@@ -97,4 +97,4 @@ jobs:
           cd "$FIXTURE_DIR/app"
           cordova plugin add "$GITHUB_WORKSPACE" --no-telemetry
           cordova platform add "ios@${{ matrix.cordova_ios }}" --no-telemetry
-          cordova build ios --debug --no-telemetry --buildFlag="-destination=generic/platform=iOS Simulator"
+          cordova build ios --debug --no-telemetry --buildFlag="-destination" --buildFlag="generic/platform=iOS Simulator"

@@ -88,7 +88,7 @@ node "$REPO_ROOT/scripts/write-fixture-index.js" "$TMP_DIR/app/www/js/index.js"
 cd "$TMP_DIR/app"
 cordova plugin add "$REPO_ROOT" --no-telemetry
 cordova platform add ios@7.1.1 --no-telemetry
-cordova build ios --debug --no-telemetry --buildFlag="-destination=generic/platform=iOS Simulator"
+cordova build ios --debug --no-telemetry --buildFlag="-destination" --buildFlag="generic/platform=iOS Simulator"
 ```
 
 ### iOS 8
@@ -102,7 +102,7 @@ node "$REPO_ROOT/scripts/write-fixture-index.js" "$TMP_DIR/app/www/js/index.js"
 cd "$TMP_DIR/app"
 cordova plugin add "$REPO_ROOT" --no-telemetry
 cordova platform add ios@8.0.0 --no-telemetry
-cordova build ios --debug --no-telemetry --buildFlag="-destination=generic/platform=iOS Simulator"
+cordova build ios --debug --no-telemetry --buildFlag="-destination" --buildFlag="generic/platform=iOS Simulator"
 ```
 
 ## License
