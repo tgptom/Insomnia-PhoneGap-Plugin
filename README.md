@@ -32,7 +32,7 @@ This repository includes CI that generates a minimal Cordova fixture app, instal
 ### Latest evidence
 
 - PR #2 (`copilot/modernize-cordova-plugin`) failed due workflow issues (fixture parent directory creation and Android setup action requesting legacy `tools`).
-- This branch keeps the same matrix, fixes those workflow issues, and selects an available iPhone simulator dynamically because runner images may not include Cordova's default simulator name.
+- This branch keeps the same matrix, fixes those workflow issues, and builds iOS with Xcode's generic iOS Simulator destination (`-destination=generic/platform=iOS Simulator`) to avoid hard-coding a simulator model that may be unavailable on `macos-latest`.
 - Treat the matrix entries as **configured for validation**, not confirmed green, until the latest workflow run completes successfully.
 
 ## Important runtime caveat
@@ -88,7 +88,7 @@ node "$REPO_ROOT/scripts/write-fixture-index.js" "$TMP_DIR/app/www/js/index.js"
 cd "$TMP_DIR/app"
 cordova plugin add "$REPO_ROOT" --no-telemetry
 cordova platform add ios@7.1.1 --no-telemetry
-cordova build ios --debug --emulator --no-telemetry
+cordova build ios --debug --no-telemetry --buildFlag="-destination=generic/platform=iOS Simulator"
 ```
 
 ### iOS 8
@@ -102,7 +102,7 @@ node "$REPO_ROOT/scripts/write-fixture-index.js" "$TMP_DIR/app/www/js/index.js"
 cd "$TMP_DIR/app"
 cordova plugin add "$REPO_ROOT" --no-telemetry
 cordova platform add ios@8.0.0 --no-telemetry
-cordova build ios --debug --emulator --no-telemetry
+cordova build ios --debug --no-telemetry --buildFlag="-destination=generic/platform=iOS Simulator"
 ```
 
 ## License

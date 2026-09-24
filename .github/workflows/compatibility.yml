@@ -97,11 +97,4 @@ jobs:
           cd "$FIXTURE_DIR/app"
           cordova plugin add "$GITHUB_WORKSPACE" --no-telemetry
           cordova platform add "ios@${{ matrix.cordova_ios }}" --no-telemetry
-          IOS_SIMULATOR_NAME="$(xcrun simctl list devices available | sed -n 's/^[[:space:]]*\\(iPhone[^(\"]*\\) (.*/\\1/p' | head -n 1 | xargs)"
-          if [ -z "$IOS_SIMULATOR_NAME" ]; then
-            echo "No available iPhone simulator found on runner image."
-            xcrun simctl list devices available
-            exit 1
-          fi
-          echo "Using iOS simulator target: $IOS_SIMULATOR_NAME"
-          cordova build ios --debug --emulator --target="$IOS_SIMULATOR_NAME" --no-telemetry
+          cordova build ios --debug --no-telemetry --buildFlag="-destination=generic/platform=iOS Simulator"
