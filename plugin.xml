@@ -2,7 +2,7 @@
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
         xmlns:android="http://schemas.android.com/apk/res/android"
         id="cordova-plugin-insomnia"
-        version="4.3.0">
+        version="5.0.0">
 
   <name>Insomnia (prevent screen sleep)</name>
 
@@ -32,16 +32,6 @@
     <source-file src="src/ios/Insomnia.m"/>
   </platform>
 
-    <platform name="wp8">
-        <config-file target="config.xml" parent="/*">
-            <feature name="Insomnia">
-                <param name="wp-package" value="Insomnia"/>
-            </feature>
-        </config-file>
-
-        <source-file src="src/wp8/Insomnia.cs" />
-    </platform>
-
   <platform name="android">
 
     <config-file target="res/xml/config.xml" parent="/*">
@@ -59,12 +49,6 @@
     </js-module>
   </platform>
 
-  <platform name="firefoxos">
-    <js-module src="src/firefoxos/insomnia.js" name="InsomniaProxy">
-      <runs />
-    </js-module>
-  </platform>
-  
   <platform name="windows">
     <js-module src="src/windows/InsomniaProxy.js" name="InsomniaProxy">
       <runs />

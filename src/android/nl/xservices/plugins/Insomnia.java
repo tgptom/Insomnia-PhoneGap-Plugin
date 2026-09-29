@@ -3,7 +3,6 @@ package nl.xservices.plugins;
 import android.view.WindowManager;
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
-import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
 import org.json.JSONException;
 
@@ -20,7 +19,7 @@ public class Insomnia extends CordovaPlugin {
             new Runnable() {
               public void run() {
                 cordova.getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-                callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK));
+                callbackContext.success();
               }
             });
         return true;
@@ -30,7 +29,7 @@ public class Insomnia extends CordovaPlugin {
             new Runnable() {
               public void run() {
                 cordova.getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-                callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK));
+                callbackContext.success();
               }
             });
         return true;
