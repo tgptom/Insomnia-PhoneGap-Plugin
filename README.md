@@ -8,8 +8,9 @@ by [Eddy Verbruggen](http://www.x-services.nl)
 	2. [Manually](https://github.com/EddyVerbruggen/Insomnia-PhoneGap-Plugin#manually)
 	2. [PhoneGap Build](https://github.com/EddyVerbruggen/Insomnia-PhoneGap-Plugin#phonegap-build)
 3. [Usage](https://github.com/EddyVerbruggen/Insomnia-PhoneGap-Plugin#3-usage)
-4. [Credits](https://github.com/EddyVerbruggen/Insomnia-PhoneGap-Plugin#4-credits)
-5. [License](https://github.com/EddyVerbruggen/Insomnia-PhoneGap-Plugin#5-license)
+4. [Compatibility with modern Cordova platforms](#4-compatibility-with-modern-cordova-platforms)
+5. [Credits](#5-credits-)
+6. [License](#6-license)
 
 This is for PhoneGap 3.x, [here is the 2.x version](https://github.com/EddyVerbruggen/Insomnia-PhoneGap-Plugin/tree/phonegap-2.x)
 
@@ -115,7 +116,61 @@ even if you previously called `keepAwake`. A similar [issue on Android](#30) whe
 
 So to make sure your app honors `keepAwake` you have to re-run that method after these kinds of 'external UI' thingies give control back to your app.
 
-## 4. CREDITS ##
+## 4. Compatibility with modern Cordova platforms
+
+The [Compatibility workflow](.github/workflows/compatibility.yml) builds a throw-away Cordova
+fixture app, installs this plugin from the local checkout and compiles the native projects.
+
+| Check | Toolchain | Status |
+| --- | --- | --- |
+| JavaScript bridge contract | Node 20, `npm test` | see the latest workflow run |
+| cordova-android 14.0.0 | Ubuntu 24.04, Java 17, Android API 35 + Build Tools 35.0.0 | see the latest workflow run |
+| cordova-android 15.0.0 | Ubuntu 24.04, Java 17, Android API 36 + Build Tools 36.0.0 | see the latest workflow run |
+| cordova-ios 7.1.1 | macOS runner image Xcode, generic iOS Simulator destination | see the latest workflow run |
+| cordova-ios 8.0.0 | macOS runner image Xcode, generic iOS Simulator destination | see the latest workflow run |
+
+These are the versions exercised in CI. They are *not* installation requirements: the plugin still
+declares `cordova >= 3.0.0` so that existing projects on older platforms keep working.
+
+**A successful build only proves that the plugin packages and compiles.** It does not prove that the
+screen actually stays awake. Verify `keepAwake` and `allowSleepAgain` on physical Android and iOS
+devices before relying on them.
+
+### Reproducing the checks locally
+
+Run the following from the root of your clone of this repository:
+
+```bash
+REPO_ROOT="$(pwd)"
+npm test
+npm install -g cordova@12
+
+FIXTURE_DIR="$(mktemp -d)"
+cordova create "$FIXTURE_DIR/app" com.example.insomniafixture InsomniaFixture --no-telemetry
+node "$REPO_ROOT/scripts/write-fixture-index.js" "$FIXTURE_DIR/app/www/js/index.js"
+cd "$FIXTURE_DIR/app"
+cordova plugin add "$REPO_ROOT" --no-telemetry
+```
+
+Then build the platform you want to verify (replace the version as needed):
+
+```bash
+# Android (14.0.0 needs Android API 35, 15.0.0 needs API 36)
+cordova platform add android@14.0.0 --no-telemetry
+cordova build android --debug --no-telemetry
+
+# iOS (7.1.1 or 8.0.0), on macOS with Xcode installed
+cordova platform add ios@7.1.1 --no-telemetry
+cordova build ios --debug --emulator --no-telemetry --buildFlag="-destination generic/platform=iOS Simulator"
+```
+
+The single quoted `--buildFlag` value matters on iOS: cordova-ios matches `-destination` with the
+regular expression `/^\-destination\s*(.*)/`, so the destination specifier has to be part of the
+same flag, separated by a space. Passing `-destination=...` or splitting it over two `--buildFlag`
+arguments makes `xcodebuild` reject the destination. The generic simulator destination is used so
+that the build does not depend on one specific simulator model being installed on the machine.
+
+## 5. CREDITS ##
 
 This plugin was enhanced for Plugman / PhoneGap Build by [Eddy Verbruggen](http://www.x-services.nl).
 
@@ -125,7 +180,7 @@ The iOS code was heavily inspired by [Wolfgang Koller](https://github.com/simple
 
 Many thanks to [Jesse MacFadyen](https://github.com/purplecabbage) for implementing the wp8 and windows versions!
 
-## 5. License
+## 6. License
 
 [The MIT License (MIT)](http://www.opensource.org/licenses/mit-license.html)
 

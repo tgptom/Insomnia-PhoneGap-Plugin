@@ -27,6 +27,9 @@
   "engines": {
     "cordova": ">=3.0.0"
   },
+  "scripts": {
+    "test": "node --check www/Insomnia.js && node tests/bridge-contract.test.js"
+  },
   "author": "Eddy Verbruggen <eddyverbruggen@gmail.com> (https://github.com/EddyVerbruggen)",
   "license": "MIT",
   "bugs": {
