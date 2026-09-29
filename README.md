@@ -121,15 +121,16 @@ So to make sure your app honors `keepAwake` you have to re-run that method after
 The [Compatibility workflow](.github/workflows/compatibility.yml) builds a throw-away Cordova
 fixture app, installs this plugin from the local checkout and compiles the native projects.
 
-| Check | Toolchain | Status |
+| Check | Toolchain | Last recorded result |
 | --- | --- | --- |
-| JavaScript bridge contract | Node 20, `npm test` | see the latest workflow run |
-| cordova-android 14.0.0 | Ubuntu 24.04, Java 17, Android API 35 + Build Tools 35.0.0 | see the latest workflow run |
-| cordova-android 15.0.0 | Ubuntu 24.04, Java 17, Android API 36 + Build Tools 36.0.0 | see the latest workflow run |
-| cordova-ios 7.1.1 | macOS runner image Xcode, generic iOS Simulator destination | see the latest workflow run |
-| cordova-ios 8.0.0 | macOS runner image Xcode, generic iOS Simulator destination | see the latest workflow run |
+| JavaScript bridge contract | Node 20, `npm test` | passed |
+| cordova-android 14.0.0 | Ubuntu 24.04, Java 17, Android SDK 35 + Build Tools 35.0.0, Gradle 8.13 | `app-debug.apk` built |
+| cordova-android 15.0.0 | Ubuntu 24.04, Java 17, Android SDK 36 + Build Tools 36.0.0, Gradle 8.14.2 | `app-debug.apk` built |
+| cordova-ios 7.1.1 | `macos-latest` with Xcode 26.6, generic iOS Simulator destination | `** BUILD SUCCEEDED **` |
+| cordova-ios 8.0.0 | `macos-latest` with Xcode 26.6, generic iOS Simulator destination | `** BUILD SUCCEEDED **` |
 
-These are the versions exercised in CI. They are *not* installation requirements: the plugin still
+See the [Compatibility workflow runs](https://github.com/tgptom/Insomnia-PhoneGap-Plugin/actions/workflows/compatibility.yml)
+for the current results. These are the versions exercised in CI. They are *not* installation requirements: the plugin still
 declares `cordova >= 3.0.0` so that existing projects on older platforms keep working.
 
 **A successful build only proves that the plugin packages and compiles.** It does not prove that the
