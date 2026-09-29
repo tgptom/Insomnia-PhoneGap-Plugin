@@ -8,10 +8,11 @@ by [Eddy Verbruggen](http://www.x-services.nl)
 	2. [Manually](https://github.com/EddyVerbruggen/Insomnia-PhoneGap-Plugin#manually)
 	2. [PhoneGap Build](https://github.com/EddyVerbruggen/Insomnia-PhoneGap-Plugin#phonegap-build)
 3. [Usage](https://github.com/EddyVerbruggen/Insomnia-PhoneGap-Plugin#3-usage)
-4. [Credits](https://github.com/EddyVerbruggen/Insomnia-PhoneGap-Plugin#4-credits)
-5. [License](https://github.com/EddyVerbruggen/Insomnia-PhoneGap-Plugin#5-license)
+4. [Compatibility with modern Cordova platforms](#4-compatibility-with-modern-cordova-platforms)
+5. [Credits](#5-credits-)
+6. [License](#6-license)
 
-This is for PhoneGap 3.x, [here is the 2.x version](https://github.com/EddyVerbruggen/Insomnia-PhoneGap-Plugin/tree/phonegap-2.x)
+This is for Cordova / PhoneGap 3.x and later. [Here is the 2.x version](https://github.com/EddyVerbruggen/Insomnia-PhoneGap-Plugin/tree/phonegap-2.x).
 
 ## 1. Description
 
@@ -19,9 +20,20 @@ Prevent the screen of the mobile device from falling asleep.
 
 * The device will never fall asleep after calling `keepAwake`.
 * After making your app practically a zombie, you can allow it to sleep again by calling `allowSleepAgain`.
-* Works on Android, probably every version you'd care about.
-* Works on iOS, probably every version you'd care about.
-* Works on Windows and WP8.
+* Supported platforms: Android, iOS, Windows and browser.
+* Builds are verified in CI against cordova-android 14 / 15 and cordova-ios 7 / 8 — see
+  [section 4](#4-compatibility-with-modern-cordova-platforms) for the exact toolchains and for what
+  those checks do and do not prove.
+
+### Breaking changes in 5.0.0
+
+The long-dead `wp8` and `firefoxos` platforms were removed, along with their sources
+(`src/wp8/Insomnia.cs` and `src/firefoxos/insomnia.js`). Neither platform has a maintained Cordova
+implementation any more, so the declarations promised support that could not be delivered.
+
+If you still need either platform, stay on `4.3.0`. Nothing else changed for `android`, `ios`,
+`windows` or `browser`: the JavaScript API, the plugin id and the `cordova >= 3.0.0` engine
+constraint are all unchanged, so upgrading is otherwise a drop-in.
 
 ## 2. Installation
 
@@ -61,13 +73,6 @@ You can also get this plugin [from NPM](https://www.npmjs.com/package/cordova-pl
 </feature>
 ```
 
-```xml
-<!-- for wp8 -->
-<feature name="Insomnia">
-  <param name="wp-package" value="Insomnia" />
-</feature>
-```
-
 2\. Grab a copy of Insomnia.js, add it to your project and reference it in `index.html`:
 ```html
 <script type="text/javascript" src="js/Insomnia.js"></script>
@@ -79,8 +84,6 @@ iOS: Copy `Insomnia.h` and `Insomnia.h` to `platforms/ios/<ProjectName>/Plugins`
 
 Android: Copy `Insomnia.java` to `platforms/android/src/nl/xservices/plugins` (create the folders)
 
-wp8: Copy `Insomnia.cs` to `platforms/wp8/Plugins/nl.x-services.plugins.insomnia` (create the folders)
-
 ### PhoneGap Build
 
 Insomnia works with PhoneGap build too, look for Insomnia here: https://build.phonegap.com/plugins/
@@ -90,7 +93,7 @@ Just add the following xml to your `config.xml` to always use the latest version
 ```
 or to use this exact version:
 ```xml
-<plugin name="cordova-plugin-insomnia" version="4.1.0" source="npm" />
+<plugin name="cordova-plugin-insomnia" version="5.0.0" source="npm" />
 ```
 
 The plugin's  javascript file is brought in automatically. Make sure though you include a reference to cordova.js in your index.html's head:
@@ -115,7 +118,76 @@ even if you previously called `keepAwake`. A similar [issue on Android](#30) whe
 
 So to make sure your app honors `keepAwake` you have to re-run that method after these kinds of 'external UI' thingies give control back to your app.
 
-## 4. CREDITS ##
+## 4. Compatibility with modern Cordova platforms
+
+The [Compatibility workflow](.github/workflows/compatibility.yml) builds a throw-away Cordova
+fixture app, installs this plugin from the local checkout and compiles the native projects.
+
+| Check | Toolchain | Last recorded result |
+| --- | --- | --- |
+| JavaScript bridge contract | Node 20, `npm test` | passed |
+| cordova-android 14.0.0 | Ubuntu 24.04, Java 17, Android SDK 35 + Build Tools 35.0.0, Gradle 8.13 | `app-debug.apk` built |
+| cordova-android 15.0.0 | Ubuntu 24.04, Java 17, Android SDK 36 + Build Tools 36.0.0, Gradle 8.14.2 | `app-debug.apk` built |
+| cordova-ios 7.1.1 | `macos-latest` with Xcode 26.6, generic iOS Simulator destination | `** BUILD SUCCEEDED **` |
+| cordova-ios 8.0.0 | `macos-latest` with Xcode 26.6, generic iOS Simulator destination | `** BUILD SUCCEEDED **` |
+
+See the [Compatibility workflow runs](https://github.com/tgptom/Insomnia-PhoneGap-Plugin/actions/workflows/compatibility.yml)
+for the current results. These are the versions exercised in CI. They are *not* installation requirements: the plugin still
+declares `cordova >= 3.0.0` so that existing projects on older platforms keep working.
+
+### What these checks do and do not prove
+
+Be precise about the coverage, because it is narrower than the table alone suggests:
+
+* `npm test` exercises the **JavaScript bridge only**. It stubs `cordova.exec` and asserts that
+  `keepAwake` / `allowSleepAgain` forward the right service name, action name, arguments and
+  callbacks. No native code runs.
+* The Android and iOS jobs prove the native sources **compile and package** against each toolchain.
+* `scripts/write-fixture-index.js` writes a `keepAwake` → `allowSleepAgain` smoke flow into the
+  fixture app. CI only runs `cordova build`, so that flow is **compiled into the bundle but never
+  executed**. Nothing in CI asserts that the success callbacks fire.
+* Consequently nothing here proves the round trip through native code, and **nothing proves that the
+  screen actually stays awake**.
+
+To run the bundled smoke flow you need a booted emulator or simulator (`cordova emulate android` /
+`cordova emulate ios`) and must read the app's console output. For real confidence, verify
+`keepAwake` and `allowSleepAgain` on physical Android and iOS devices.
+
+### Reproducing the checks locally
+
+Run the following from the root of your clone of this repository:
+
+```bash
+REPO_ROOT="$(pwd)"
+npm test
+npm install -g cordova@12
+
+FIXTURE_DIR="$(mktemp -d)"
+cordova create "$FIXTURE_DIR/app" com.example.insomniafixture InsomniaFixture --no-telemetry
+node "$REPO_ROOT/scripts/write-fixture-index.js" "$FIXTURE_DIR/app/www/js/index.js"
+cd "$FIXTURE_DIR/app"
+cordova plugin add "$REPO_ROOT" --no-telemetry
+```
+
+Then build the platform you want to verify (replace the version as needed):
+
+```bash
+# Android (14.0.0 needs Android API 35, 15.0.0 needs API 36)
+cordova platform add android@14.0.0 --no-telemetry
+cordova build android --debug --no-telemetry
+
+# iOS (7.1.1 or 8.0.0), on macOS with Xcode installed
+cordova platform add ios@7.1.1 --no-telemetry
+cordova build ios --debug --emulator --no-telemetry --buildFlag="-destination generic/platform=iOS Simulator"
+```
+
+The single quoted `--buildFlag` value matters on iOS: cordova-ios matches `-destination` with the
+regular expression `/^\-destination\s*(.*)/`, so the destination specifier has to be part of the
+same flag, separated by a space. Passing `-destination=...` or splitting it over two `--buildFlag`
+arguments makes `xcodebuild` reject the destination. The generic simulator destination is used so
+that the build does not depend on one specific simulator model being installed on the machine.
+
+## 5. CREDITS ##
 
 This plugin was enhanced for Plugman / PhoneGap Build by [Eddy Verbruggen](http://www.x-services.nl).
 
@@ -125,7 +197,7 @@ The iOS code was heavily inspired by [Wolfgang Koller](https://github.com/simple
 
 Many thanks to [Jesse MacFadyen](https://github.com/purplecabbage) for implementing the wp8 and windows versions!
 
-## 5. License
+## 6. License
 
 [The MIT License (MIT)](http://www.opensource.org/licenses/mit-license.html)
 
