@@ -133,9 +133,23 @@ See the [Compatibility workflow runs](https://github.com/tgptom/Insomnia-PhoneGa
 for the current results. These are the versions exercised in CI. They are *not* installation requirements: the plugin still
 declares `cordova >= 3.0.0` so that existing projects on older platforms keep working.
 
-**A successful build only proves that the plugin packages and compiles.** It does not prove that the
-screen actually stays awake. Verify `keepAwake` and `allowSleepAgain` on physical Android and iOS
-devices before relying on them.
+### What these checks do and do not prove
+
+Be precise about the coverage, because it is narrower than the table alone suggests:
+
+* `npm test` exercises the **JavaScript bridge only**. It stubs `cordova.exec` and asserts that
+  `keepAwake` / `allowSleepAgain` forward the right service name, action name, arguments and
+  callbacks. No native code runs.
+* The Android and iOS jobs prove the native sources **compile and package** against each toolchain.
+* `scripts/write-fixture-index.js` writes a `keepAwake` → `allowSleepAgain` smoke flow into the
+  fixture app. CI only runs `cordova build`, so that flow is **compiled into the bundle but never
+  executed**. Nothing in CI asserts that the success callbacks fire.
+* Consequently nothing here proves the round trip through native code, and **nothing proves that the
+  screen actually stays awake**.
+
+To run the bundled smoke flow you need a booted emulator or simulator (`cordova emulate android` /
+`cordova emulate ios`) and must read the app's console output. For real confidence, verify
+`keepAwake` and `allowSleepAgain` on physical Android and iOS devices.
 
 ### Reproducing the checks locally
 
